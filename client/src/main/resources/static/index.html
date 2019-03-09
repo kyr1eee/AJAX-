@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="jquery-1.11.3.min.js"></script>
+    <script src="jasmine-2.8.0/jasmine.js"></script>
+    <script src="jasmine-2.8.0/jasmine-html.js"></script>
+    <script src="jasmine-2.8.0/boot.js"></script>
     <title>Client</title>
 </head>
 <body>
@@ -20,6 +21,34 @@
                 }
             )
         }
+
+        // 测试用例超时时间
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000;
+
+        var baseURL = 'http://localhost:8080/test';
+
+        // 测试模块
+        describe("AJAX跨域", function() {
+            it("get1请求", function(done){
+                var result;
+                // 实际上是封装的promise
+                $.getJSON(baseURL + '/get1').then(function(jsonObj) {
+                    result = jsonObj;
+                });
+
+                // 由于是异步请求, 因此使用setTimeout来校验
+                // 根据事件循环机制, 异步任务中先执行微任务,后执行宏任务
+                // 此处异步请求为promise.then,因此在setTimeout之前执行,则用setTimeout来测试数据是否成功接收
+                setTimeout(function() {
+                    expect(result).toEqual({
+                        "data": "get1 ok"
+                    });
+                    
+                    // 校检完成,通知jasmine框架
+                    done();
+                }, 100);
+            });
+        });
     </script>
 </body>
 </html>
