@@ -2,18 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <script src="jquery-1.11.3.min.js"></script>
+    <script src="jquery-1.11.3.js"></script>
     <script src="jasmine-2.8.0/jasmine.js"></script>
     <script src="jasmine-2.8.0/jasmine-html.js"></script>
     <script src="jasmine-2.8.0/boot.js"></script>
     <title>Client</title>
 </head>
 <body>
-    <a href="#" onclick="get1()">发送ajax请求</a>
+    <!-- <a href="#" onclick="get1()">发送ajax请求</a> -->
+    <!-- img标签跨域请求图片 -->
+    <!-- <img src="http://localhost:8080/test/get1" /> -->
     <script>
+        // AJAX跨域报错的原因: 浏览器限制，跨域, XHR（XMLHTTPRequest跨域被浏览器限制）
         // 跨域报错
         // Access to XMLHttpRequest at 'http://localhost:8080/test/get1' from origin 'http://localhost:8081' 
         // has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+        // 解决方法
+        // 1.修改浏览器启动参数
         function get1() {
             $.getJSON("http://localhost:8080/test/get1").then(
                 function(result) {
@@ -27,12 +32,14 @@
 
         var baseURL = 'http://localhost:8080/test';
 
-        // 测试模块
+        // 测试模块, 单元测试用例
         describe("AJAX跨域", function() {
             it("get1请求", function(done){
                 var result;
                 // 实际上是封装的promise
-                $.getJSON(baseURL + '/get1').then(function(jsonObj) {
+                // ajax请求返回类型为application/json
+                // 即使带callback也无法返回数据,因为是xhr对象,浏览器限制.
+                $.getJSON(baseURL + '/get1?jsonCallBack=jQuery111306779623778597157_1111111552226056754&_=1552226056755').then(function(jsonObj) {
                     result = jsonObj;
                 });
 
@@ -46,6 +53,31 @@
                     
                     // 校检完成,通知jasmine框架
                     done();
+                }, 100);
+            });
+
+            it("jsonp请求", function(done){
+                var result;
+                // jsonp返回类型为application/javascript
+                $.ajax({
+                    url: baseURL + '/get1',
+                    dataType: "jsonp",
+                    // jsonp参数
+                    jsonp: 'jsonpCallBack',
+                    // 防止被缓存,多个参数 _=时间戳
+                    cache: false,
+                    success: function(json) {
+                        result = json;
+                    }
+                });
+
+                setTimeout(function() {
+                    expect(result).toEqual({
+                        "data": "get1 ok"
+                });
+                    
+                // 校检完成,通知jasmine框架
+                done();
                 }, 100);
             });
         });
