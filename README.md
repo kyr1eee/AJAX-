@@ -6,7 +6,7 @@ ps: demo为后端代码, client为前端代码
 
 ## jsonp实现原理
 1. 前端发送非xhr请求, 请求带有callback参数.<br>
-2. 后端接收callback参数,返回application/javascript即js代码,返回以callback参数值命名的函数,该函数传入的实参为请求数据.例:callback(json)<br>
+2. 后端接收callback参数,返回拼接字符串,application/javascript即js代码,返回以callback参数值命名的函数,该函数传入的实参为请求数据.例:callback(json)<br>
 3. 前端动态创建异步script标签,src指向请求地址,获取请求地址返回的js函数.例: 预先定义函数-> var callback = function(data) {//todo}, 动态创建script异步标签。<br>
 4. 调用该函数,获取实参中的数据,即callback(json)<br>
 5. 销毁script标签<br>
